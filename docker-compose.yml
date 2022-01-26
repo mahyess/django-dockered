@@ -1,0 +1,46 @@
+version: "3"
+
+services:
+  db:
+    image: postgres
+    volumes:
+      - ./db/data:/var/lib/postgres/data
+    environment:
+      - POSTGRES_DB=postgres
+      - POSTGRES_USER=postgres
+      - POSTGRES_PASSWORD=postgres
+      - PORT=5432
+
+
+  app:
+    build:
+      context: ./app
+      dockerfile: Dockerfile
+    command: python manage.py runserver 0.0.0.0:8000
+    volumes:
+      - ./app:/usr/src/app
+    ports:
+      - "${PORT}:8000"
+    depends_on:
+      - db
+    env_file:
+      - ./app/.env
+    environment:
+      - DEBUG=1
+      - PORT=8000
+
+
+  nginx:
+    image: nginx:latest
+    ports:
+      - "80:80"
+      - "443:443"
+    volumes:
+      - ./nginx:/etc/nginx/templates:ro
+      - ./app/staticfiles:/staticfiles:ro
+      - ./app/mediafiles:/mediafiles:ro
+    depends_on:
+      - app
+
+volumes:
+  db:
