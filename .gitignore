@@ -64,5 +64,6 @@ target/
 **/.env
 
 venv/
+.venv/
 **/staticfiles/
 **/mediafiles/
